@@ -51,18 +51,6 @@ class GELFLogger extends AbstractLogger
     }
 
     /**
-     * @param string $payload
-     *
-     * @throws GELFException
-     */
-    protected function checkSize(string $payload)
-    {
-        if (\strlen($payload) > 1024) {
-            throw new GELFException('Message too big', GELFException::CODE_MESSAGE_TOO_BIG);
-        }
-    }
-
-    /**
      * {@inheritdoc}
      *
      * @param mixed|int $level expecting LogLevel::*
@@ -78,7 +66,6 @@ class GELFLogger extends AbstractLogger
             ->setContext($context);
 
         $payload = \json_encode($gelf);
-        $this->checkSize($payload);
 
         $this->writer->write($payload);
     }

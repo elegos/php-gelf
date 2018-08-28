@@ -110,7 +110,6 @@ class ExtendedGELFLogger extends GELFLogger
         }
 
         $payload = \json_encode($message);
-        $this->checkSize($payload);
 
         $this->writer->write($payload);
     }

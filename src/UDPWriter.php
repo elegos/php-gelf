@@ -63,29 +63,31 @@ class UDPWriter implements WriterInterface
     public function flush(): void
     {
         $buffer = [];
+
+        $lastBuff = '';
+        $buffSize = 0;
+        $buffKey = 0;
+
         foreach ($this->queue as $message) {
-            if (\count($buffer) === 0) {
-                $buffer[] = $message;
+            foreach (str_split($message) as $char) {
+                if ($buffSize === 8180) {
+                    $buffSize = 0;
+                    $buffer[$buffKey++] = $lastBuff;
+                    $lastBuff = '';
+                }
 
-                continue;
+                $buffSize++;
+                $lastBuff .= $char;
             }
-
-            $len = strlen($message);
-            $bufferLen = strlen(end($buffer));
-
-            if ($len + $bufferLen <= 8180) {
-                $key = key($buffer);
-                $buffer[$key] .= $message;
-
-                continue;
-            }
-
-            $buffer[] = $message;
         }
+
+        $buffer[] = $lastBuff;
 
         $bufferLen = \count($buffer);
         if ($bufferLen === 1) {
-            $this->write($buffer[0]);
+            if (\strlen($buffer[0]) > 0) {
+                $this->write($buffer[0]);
+            }
             $this->queue = [];
 
             return;

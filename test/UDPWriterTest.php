@@ -142,7 +142,7 @@ class UDPWriterTest extends TestCase
 
         $writer = new UDPWriter($address, $port);
         for ($i = 0; $i < 100; $i++) {
-            $message = \random_bytes(\random_int(100, 1024));
+            $message = \random_bytes(\random_int(6000, 12000));
             $writer->write($message, false);
         }
 

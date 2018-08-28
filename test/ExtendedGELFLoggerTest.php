@@ -144,24 +144,6 @@ class ExtendedGELFLoggerTest extends TestCase
     /**
      * @throws GELFException
      */
-    public function testLoggerWillThrowExceptionMessageTooBig(): void
-    {
-        $writer = $this->prophesize(WriterInterface::class)->reveal();
-
-        $logger = new ExtendedGELFLogger($writer, 'host');
-        $message = '';
-        for ($i = 0; $i < 1024; $i++) {
-            $message .= '0';
-        }
-        $this->expectException(GELFException::class);
-        $this->expectExceptionCode(GELFException::CODE_MESSAGE_TOO_BIG);
-
-        $logger->gelfError(new GELF($message));
-    }
-
-    /**
-     * @throws GELFException
-     */
     public function testLoggerWillThrowExceptionHostNotSet(): void
     {
         $writer = $this->prophesize(WriterInterface::class)->reveal();
