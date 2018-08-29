@@ -83,8 +83,7 @@ class UDPWriter implements WriterInterface
 
         $buffer[] = $lastBuff;
 
-        $bufferLen = \count($buffer);
-        if ($bufferLen === 1) {
+        if (\count($buffer) === 1) {
             if (\strlen($buffer[0]) > 0) {
                 $this->write($buffer[0]);
             }
@@ -101,8 +100,10 @@ class UDPWriter implements WriterInterface
                 throw new GELFException('Impossible to gather enough entropy', GELFException::CODE_CANT_SEND_MESSAGE);
             }
 
+            $chunkSize = \count($buffer);
+
             foreach ($buffer as $i => $part) {
-                $message = "\x1e\x0f" . $messageId . pack('C', $i) . pack('C', $bufferLen) . $part;
+                $message = "\x1e\x0f" . $messageId . pack('C', $i) . pack('C', $chunkSize) . $part;
 
                 $this->write($message);
             }

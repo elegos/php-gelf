@@ -114,22 +114,31 @@ class UDPWriterTest extends TestCase
 
         $callCounter = 0;
         $messageId = null;
+        $seqTot = null;
+        $prevSeqNum = null;
         $socketSendToMock = $this->getFunctionMock($this->classNamespace, 'socket_sendto');
         $socketSendToMock
             ->expects(TestCase::any())
-            ->willReturnCallback(function ($socket, $content) use (&$callCounter, &$messageId) {
+            ->willReturnCallback(function ($socket, $content) use (&$callCounter, &$messageId, &$seqTot, &$prevSeqNum) {
                 $header = substr($content, 0, 12);
                 $fixed = substr($header, 0, 2);
                 $msgId = substr($header, 2, 8);
+
                 $seqNum = unpack('C', substr($header, 10, 1));
-                $seqTot = unpack('C', substr($header, 11, 1));
-
                 $seqNum = array_pop($seqNum);
-                $seqTot = array_pop($seqTot);
 
-                if ($messageId === null) {
+                if ($seqNum === 0) {
+                    if ($seqTot && $prevSeqNum) {
+                        TestCase::assertEquals($seqTot, $prevSeqNum + 1); // from 0 to (TOT-1)
+                    }
+
                     $messageId = $msgId;
+                    $callCounter = 0;
+                    $seqTot = unpack('C', substr($header, 11, 1));
+                    $seqTot = array_pop($seqTot);
                 }
+
+                $prevSeqNum = $seqNum;
 
                 TestCase::assertEquals("\x1e\x0f", $fixed);
                 TestCase::assertEquals($messageId, $msgId);
@@ -141,7 +150,7 @@ class UDPWriterTest extends TestCase
             });
 
         $writer = new UDPWriter($address, $port);
-        for ($i = 0; $i < 100; $i++) {
+        for ($i = 0; $i < 200; $i++) {
             $message = \random_bytes(\random_int(6000, 12000));
             $writer->write($message, false);
         }
