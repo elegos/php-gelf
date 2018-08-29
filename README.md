@@ -5,12 +5,12 @@ Graylog 2 via the Graylog Extended Log Format.
 
 ## Class information
 
-### GiacomoFurlan\Graylog\GELFLogger
+### `GiacomoFurlan\Graylog\GELFLogger`
 It implements the Psr\Log\LoggerInterface interface, so use it as a standard logger.
 
 It can set the short message, the context and the log level.
 
-### GiacomoFurlan\Graylog\ExtendedGELFLogger
+### `GiacomoFurlan\Graylog\ExtendedGELFLogger`
 It extends the previous class, but add `gelf*` functions to send more complex information.
 
 - gelfLog
@@ -25,9 +25,17 @@ It extends the previous class, but add `gelf*` functions to send more complex in
 
 These function accept a GELF object and the possibility to flush the messages instantly (default true).
 
-### GiacomoFurlan\Graylog\GELF
+### `GiacomoFurlan\Graylog\GELF`
 A data-transfer object used by `ExtendedGELFLogger`. It allows to set the short and full messages, to overwrite
 the `host` information and to add variables to the context.
+
+### `GiacomoFurlan\Graylog\GELFException`
+It can be thrown trying to send the information.
+
+- Code `GELFException::CODE_MISSING_HOST`: the host is's not set or empty
+- Code `GELFException::CODE_CANT_SEND_MESSAGE`: an error occurred trying to send the packet
+
+More information may be gathered reading the exception's message.
 
 ## Usage example
 
