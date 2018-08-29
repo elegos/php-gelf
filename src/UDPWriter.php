@@ -57,10 +57,7 @@ class UDPWriter implements WriterInterface
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function flush(): void
+    private function getEnqueuedMessagesBuffer(): array
     {
         $buffer = [];
 
@@ -83,8 +80,18 @@ class UDPWriter implements WriterInterface
 
         $buffer[] = $lastBuff;
 
+        return $buffer;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function flush(): void
+    {
+        $buffer = $this->getEnqueuedMessagesBuffer();
+
         if (\count($buffer) === 1) {
-            if (\strlen($buffer[0]) > 0) {
+            if ($buffer[0]) {
                 $this->write($buffer[0]);
             }
             $this->queue = [];
@@ -101,9 +108,11 @@ class UDPWriter implements WriterInterface
             }
 
             $chunkSize = \count($buffer);
+            $header = "\x1e\x0f" . $messageId;
+            $packedChunkSize = pack('C', $chunkSize);
 
             foreach ($buffer as $i => $part) {
-                $message = "\x1e\x0f" . $messageId . pack('C', $i) . pack('C', $chunkSize) . $part;
+                $message = $header . pack('C', $i) . $packedChunkSize . $part;
 
                 $this->write($message);
             }
