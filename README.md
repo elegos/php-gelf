@@ -13,21 +13,32 @@ It can set the short message, the context and the log level.
 ### `GiacomoFurlan\Graylog\ExtendedGELFLogger`
 It extends the previous class, but add `gelf*` functions to send more complex information.
 
-- gelfLog
-- gelfAlert
-- gelfCritical
-- gelfDebug
-- gelfEmergency
-- gelfError
-- gelfInfo
-- gelfNotice
-- gelfWarning
+It also allows the logs to be enqueued, rather than being sent immediately.
+
+- `gelfLog`
+- `gelfAlert`
+- `gelfCritical`
+- `gelfDebug`
+- `gelfEmergency`
+- `gelfError`
+- `gelfInfo`
+- `gelfNotice`
+- `gelfWarning`
+- `flush`
 
 These function accept a GELF object and the possibility to flush the messages instantly (default true).
+
+The `flush` function flushes eventual messages previously enqueued.
 
 ### `GiacomoFurlan\Graylog\GELF`
 A data-transfer object used by `ExtendedGELFLogger`. It allows to set the short and full messages, to overwrite
 the `host` information and to add variables to the context.
+
+### `GiacomoFurlan\Graylog\UDPWriter`
+UDP implementation of the `WriterInterface` used to instantiate the loggers.
+
+If there are enqueued messages (writing with `flush` set to `false`, changeable using the extended logger),
+it will try to run `flush` when destroyed.
 
 ### `GiacomoFurlan\Graylog\GELFException`
 It can be thrown trying to send the information.

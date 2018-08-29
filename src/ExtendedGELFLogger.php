@@ -123,4 +123,9 @@ class ExtendedGELFLogger extends GELFLogger
 
         $this->writer->write($payload, $flush);
     }
+
+    public function flush(): void
+    {
+        $this->writer->flush();
+    }
 }
