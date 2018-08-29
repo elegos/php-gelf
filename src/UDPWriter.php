@@ -21,6 +21,16 @@ class UDPWriter implements WriterInterface
     }
 
     /**
+     * @throws GELFException
+     */
+    public function __destruct()
+    {
+        if (!empty($this->queue)) {
+            $this->flush();
+        }
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function write(string $content, bool $flush = true): void
@@ -39,31 +49,46 @@ class UDPWriter implements WriterInterface
      */
     public function flush(): void
     {
-        $buffer = $this->getEnqueuedMessagesBuffer();
         $socket = null;
+        $buffer = [];
+
+        foreach ($this->queue as $message) {
+            if (\strlen($message) <= 8192) {
+                $socket = $this->send($socket, $message);
+
+                continue;
+            }
+
+            $part = '';
+            $partLength = 0;
+            foreach (\str_split($message) as $char) {
+                $part .= $char;
+
+                if (++$partLength === 8180) {
+                    $buffer[] = $part;
+                    $part = '';
+                }
+            }
+
+            if ($partLength > 0) {
+                $buffer[] = $part;
+            }
+        }
 
         $bufferChunks = array_chunk($buffer, 128);
 
-        // Only one message/chunk to send
-        if (\count($bufferChunks) === 1 && \count($bufferChunks[0]) === 1) {
-            $this->send($socket, $bufferChunks[0][0]);
-            $this->queue = [];
-
-            return;
-        }
-
-        foreach ($bufferChunks as $buffer) {
+        foreach ($bufferChunks as $partialBuffer) {
             try {
                 $messageId = \random_bytes(8);
             } catch (\Exception $exception) {
                 throw new GELFException('Impossible to gather enough entropy', GELFException::CODE_CANT_SEND_MESSAGE);
             }
 
-            $chunkSize = \count($buffer);
+            $chunkSize = \count($partialBuffer);
             $header = "\x1e\x0f" . $messageId;
             $packedChunkSize = pack('C', $chunkSize);
 
-            foreach ($buffer as $i => $part) {
+            foreach ($partialBuffer as $i => $part) {
                 $message = $header . pack('C', $i) . $packedChunkSize . $part;
 
                 $socket = $this->send($socket, $message);
@@ -92,7 +117,6 @@ class UDPWriter implements WriterInterface
         $lastBuff = '';
         $buffSize = 0;
         $buffKey = 0;
-
         foreach ($this->queue as $message) {
             foreach (\str_split($message) as $char) {
                 if ($buffSize === 8180) {

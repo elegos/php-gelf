@@ -19,7 +19,7 @@ class ExtendedGELFLoggerTest extends TestCase
     public function testGelfDebugLevelIsCorrect(): void
     {
         $writer = $this->prophesize(WriterInterface::class);
-        $writer->write(Argument::type('string'))->will(function (array $arguments) {
+        $writer->write(Argument::type('string'), Argument::type('bool'))->will(function (array $arguments) {
             $json = \json_decode($arguments[0]);
 
             TestCase::assertEquals(GELF::LEVEL_DEBUG, $json->level);
@@ -35,7 +35,7 @@ class ExtendedGELFLoggerTest extends TestCase
     public function testGelfInfoLevelIsCorrect(): void
     {
         $writer = $this->prophesize(WriterInterface::class);
-        $writer->write(Argument::type('string'))->will(function (array $arguments) {
+        $writer->write(Argument::type('string'), Argument::type('bool'))->will(function (array $arguments) {
             $json = \json_decode($arguments[0]);
 
             TestCase::assertEquals(GELF::LEVEL_INFO, $json->level);
@@ -51,7 +51,7 @@ class ExtendedGELFLoggerTest extends TestCase
     public function testGelfNoticeLevelIsCorrect(): void
     {
         $writer = $this->prophesize(WriterInterface::class);
-        $writer->write(Argument::type('string'))->will(function (array $arguments) {
+        $writer->write(Argument::type('string'), Argument::type('bool'))->will(function (array $arguments) {
             $json = \json_decode($arguments[0]);
 
             TestCase::assertEquals(GELF::LEVEL_NOTICE, $json->level);
@@ -67,7 +67,7 @@ class ExtendedGELFLoggerTest extends TestCase
     public function testGelfWarningLevelIsCorrect(): void
     {
         $writer = $this->prophesize(WriterInterface::class);
-        $writer->write(Argument::type('string'))->will(function (array $arguments) {
+        $writer->write(Argument::type('string'), Argument::type('bool'))->will(function (array $arguments) {
             $json = \json_decode($arguments[0]);
 
             TestCase::assertEquals(GELF::LEVEL_WARNING, $json->level);
@@ -83,7 +83,7 @@ class ExtendedGELFLoggerTest extends TestCase
     public function testGelfErrorLevelIsCorrect(): void
     {
         $writer = $this->prophesize(WriterInterface::class);
-        $writer->write(Argument::type('string'))->will(function (array $arguments) {
+        $writer->write(Argument::type('string'), Argument::type('bool'))->will(function (array $arguments) {
             $json = \json_decode($arguments[0]);
 
             TestCase::assertEquals(GELF::LEVEL_ERROR, $json->level);
@@ -99,7 +99,7 @@ class ExtendedGELFLoggerTest extends TestCase
     public function testGelfCriticalLevelIsCorrect(): void
     {
         $writer = $this->prophesize(WriterInterface::class);
-        $writer->write(Argument::type('string'))->will(function (array $arguments) {
+        $writer->write(Argument::type('string'), Argument::type('bool'))->will(function (array $arguments) {
             $json = \json_decode($arguments[0]);
 
             TestCase::assertEquals(GELF::LEVEL_CRITICAL, $json->level);
@@ -115,7 +115,7 @@ class ExtendedGELFLoggerTest extends TestCase
     public function testGelfInfoAlertIsCorrect(): void
     {
         $writer = $this->prophesize(WriterInterface::class);
-        $writer->write(Argument::type('string'))->will(function (array $arguments) {
+        $writer->write(Argument::type('string'), Argument::type('bool'))->will(function (array $arguments) {
             $json = \json_decode($arguments[0]);
 
             TestCase::assertEquals(GELF::LEVEL_ALERT, $json->level);
@@ -131,7 +131,7 @@ class ExtendedGELFLoggerTest extends TestCase
     public function testGelfEmergencyAlertIsCorrect(): void
     {
         $writer = $this->prophesize(WriterInterface::class);
-        $writer->write(Argument::type('string'))->will(function (array $arguments) {
+        $writer->write(Argument::type('string'), Argument::type('bool'))->will(function (array $arguments) {
             $json = \json_decode($arguments[0]);
 
             TestCase::assertEquals(GELF::LEVEL_EMERGENCY, $json->level);
@@ -164,7 +164,7 @@ class ExtendedGELFLoggerTest extends TestCase
             ->setFullMessage('This is the full message');
 
         $writer = $this->prophesize(WriterInterface::class);
-        $writer->write(Argument::type('string'))->will(function (array $arguments) use ($gelf) {
+        $writer->write(Argument::type('string'), Argument::type('bool'))->will(function (array $arguments) use ($gelf) {
             $json = \json_decode($arguments[0]);
 
             TestCase::assertEquals($gelf->getHost(), $json->host);
@@ -189,7 +189,7 @@ class ExtendedGELFLoggerTest extends TestCase
             ->setFullMessage('This is the full message');
 
         $writer = $this->prophesize(WriterInterface::class);
-        $writer->write(Argument::type('string'))->will(function (array $arguments) use ($host) {
+        $writer->write(Argument::type('string'), Argument::type('bool'))->will(function (array $arguments) use ($host) {
             $json = \json_decode($arguments[0]);
 
             TestCase::assertEquals($host, $json->host);

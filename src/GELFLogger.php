@@ -53,7 +53,7 @@ class GELFLogger extends AbstractLogger
     /**
      * {@inheritdoc}
      *
-     * @param mixed|int $level expecting LogLevel::*
+     * @param mixed|string $level expecting LogLevel::*
      *
      * @throws GELFException
      */
@@ -61,8 +61,9 @@ class GELFLogger extends AbstractLogger
     {
         $gelf = new GELF($message);
         $gelf->setHost($this->host);
+        $context['level_label'] = $level;
         $gelf
-            ->setLevel(static::getGELFLogLevelFromPSRLogLevel($level))
+            ->setLevel(static::getGELFLogLevelFromPSRLogLevel((string)$level))
             ->setContext($context);
 
         $payload = \json_encode($gelf);

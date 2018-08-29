@@ -16,6 +16,8 @@ class UDPWriterTest extends TestCase
 
     public function __construct($name = null, $data = [], $dataName = '')
     {
+        ini_set('memory_limit', -1);
+
         parent::__construct($name, $data, $dataName);
 
         $refClass = new \ReflectionClass(UDPWriter::class);
@@ -29,7 +31,7 @@ class UDPWriterTest extends TestCase
         $testData = 'Test message';
 
         $socketCreateMock = $this->getFunctionMock($this->classNamespace, 'socket_create');
-        $socketCreateMock->expects(TestCase::once())->willReturnCallback(function ($domain, $type, $protocol) {
+        $socketCreateMock->expects(TestCase::any())->willReturnCallback(function ($domain, $type, $protocol) {
             TestCase::assertEquals(AF_INET, $domain);
             TestCase::assertEquals(SOCK_DGRAM, $type);
             TestCase::assertEquals(SOL_UDP, $protocol);
@@ -39,16 +41,15 @@ class UDPWriterTest extends TestCase
 
         $socketSendToMock = $this->getFunctionMock($this->classNamespace, 'socket_sendto');
         $socketSendToMock
-            ->expects(TestCase::once())
-            ->willReturnCallback(function ($socket, $content, $contentLen, $flags, $fnAddress, $fnPort) use ($address, $port, $testData) {
+            ->expects(TestCase::any())
+            ->willReturnCallback(function ($socket, $content, $contentLen, $flags, $fnAddress, $fnPort) use ($address, $port) {
                 TestCase::assertEquals(1, $socket);
-                TestCase::assertEquals($testData, $content);
-                TestCase::assertEquals(strlen($testData), $contentLen);
+                TestCase::assertEquals(\strlen($content), $contentLen);
                 TestCase::assertEquals(0, $flags);
                 TestCase::assertEquals($address, $fnAddress);
                 TestCase::assertEquals($port, $fnPort);
 
-                return strlen($content);
+                return $contentLen;
             });
 
         $writer = new UDPWriter($address, $port);
@@ -62,7 +63,7 @@ class UDPWriterTest extends TestCase
         $testData = 'Test message';
 
         $socketCreateMock = $this->getFunctionMock($this->classNamespace, 'socket_create');
-        $socketCreateMock->expects(TestCase::once())->willReturnCallback(function () {
+        $socketCreateMock->expects(TestCase::any())->willReturnCallback(function () {
             return false;
         });
 
@@ -80,7 +81,7 @@ class UDPWriterTest extends TestCase
         $testData = 'Test message';
 
         $socketCreateMock = $this->getFunctionMock($this->classNamespace, 'socket_create');
-        $socketCreateMock->expects(TestCase::once())->willReturnCallback(function ($domain, $type, $protocol) {
+        $socketCreateMock->expects(TestCase::any())->willReturnCallback(function ($domain, $type, $protocol) {
             TestCase::assertEquals(AF_INET, $domain);
             TestCase::assertEquals(SOCK_DGRAM, $type);
             TestCase::assertEquals(SOL_UDP, $protocol);
@@ -90,7 +91,7 @@ class UDPWriterTest extends TestCase
 
         $socketSendToMock = $this->getFunctionMock($this->classNamespace, 'socket_sendto');
         $socketSendToMock
-            ->expects(TestCase::once())
+            ->expects(TestCase::any())
             ->willReturnCallback(function ($socket, $content) use ($address, $port, $testData) {
                 return strlen($content) - 5;
             });
@@ -151,7 +152,7 @@ class UDPWriterTest extends TestCase
 
         $writer = new UDPWriter($address, $port);
         for ($i = 0; $i < 200; $i++) {
-            $message = \random_bytes(\random_int(6000, 12000));
+            $message = \random_bytes(\random_int(8193, 12000));
             $writer->write($message, false);
         }
 
