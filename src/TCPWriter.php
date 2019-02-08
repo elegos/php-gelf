@@ -56,11 +56,17 @@ class TCPWriter extends UDPWriter
             if ($socket === false) {
                 throw new GELFException('Impossible to open a TCP socket', GELFException::CODE_CANT_SEND_MESSAGE);
             }
+
+            $socketConnectionResult = socket_connect($socket, $this->address, $this->port);
+
+            if ($socketConnectionResult === false) {
+                throw new GELFException('Impossible to connect to the Graylog server via TCP', GELFException::CODE_CANT_SEND_MESSAGE);
+            }
         }
 
         $content = \implode("\0", $messages)."\0";
         $contentLen = \strlen($content);
-        $bytesSent = socket_sendto($socket, $content, $contentLen, 0, $this->address, $this->port);
+        $bytesSent = socket_write($socket, $content);
 
         if ($bytesSent !== $contentLen) {
             throw new GELFException(
