@@ -40,6 +40,12 @@ UDP implementation of the `WriterInterface` used to instantiate the loggers.
 If there are enqueued messages (writing with `flush` set to `false`, changeable using the extended logger),
 it will try to run `flush` when destroyed.
 
+### `GiacomoFurlan\Graylog\TCPWriter`
+UDP implementation of the `WriterInterface` used to instantiate the loggers.
+
+If there are enqueued messages (writing with `flush` set to `false`, changeable using the extended logger),
+it will try to run `flush` when destroyed.
+
 ### `GiacomoFurlan\Graylog\GELFException`
 It can be thrown trying to send the information.
 
