@@ -58,7 +58,7 @@ class TCPWriter extends UDPWriter
             }
         }
 
-        $content = \implode("\0", $messages);
+        $content = \implode("\0", $messages)."\0";
         $contentLen = \strlen($content);
         $bytesSent = socket_sendto($socket, $content, $contentLen, 0, $this->address, $this->port);
 
